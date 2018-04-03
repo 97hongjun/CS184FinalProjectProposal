@@ -25,10 +25,92 @@
 
 <h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2018</h1>
 <h1 align="middle">Altering Surface BRDFs in Images via cGAN</h1>
-<h2 align="middle">Hong Jun Jeon, CS184-AGB</h2>
-
+<h2 align="middle">Hong Jun Jeon, 25969101</h2>
+<h2 align="middle">Yiqi (Eric) Hou, 3031846767</h2>
+<h2 align="middle">Jesse Ou, 3032141165</h2>
 <br><br>
+  <div align="center">
+    <table style="width=100%">
+      <tr>
+        <td align="middle">
+        <img src="Images/Cover.png" width="580px" />
+      </tr>
+    </table>
+  </div>
 
+<div class="padded">
+  <h2 align="middle">Our Idea</h2>
+
+    <p>While .dae files that describe scenes of interest are incredibly descriptive, they are not plentiful. Images, while less descriptive, are ubiquitous. It would be interesting and useful if we could alter the BRDFs of arbitrary objects in our images. We can change a picture of a mug from a lambertian brdf to a glossy one (and vice versa). It could also improve 3D reconstruction via binocular stereopsis because algorithms for finding corresponding points assume that objects in the scene have lambertian surface brdfs. While this may be ambitious (and we have a backup plan), ultimately we hope to produce a project that alters/improves a commodity that is prevalent in everyone’s life: an image file.</p>
+  <h2 align="middle">Problem Description</h2>
+    <p>Neural networks have been used widely in image processing recently, but here we ask if it is feasible to generate high-quality images effectively using neural networks. We begin by simply improving the quality and efficiency of renders and then move on to changing the domain in which the renders themselves appear. This is important because, given time or processing limitation, it may be infeasible to deterministically trace out rays to enormous depths to achieve high-quality renders. In these cases, it may be more effective to use a neural network to approximate these renders while still generating high-quality, believable images. We plan on solving this problem by using different styles of GANs, which are neural networks trained to generate images that look similar to the target domain.</p>
+    <p>One example of their use is in simply increasing the quality of the renders. By knowing what high quality renders and their low quality versions look like, they can learn to generate the high quality ones from the low quality ones. The other example is domain transfer; by knowing what an image with a glossy BRDF looks like and what one with a diffuse BRDF looks like, they can learn to transfer the styles of objects between the two. A potential use case for this is to speed up renders and make them more high-quality, or allow for fast testing and iteration of different styles of objects.
+    </p>
+  <h2 align="middle">Goals and Deliverables</h2>
+    <h3> Definitely Can Deliver: Quality increase, smoothing, upscaling, sharpening.</h3>
+    <p> Our first deliverable will involve a neural network based post-processor that smooths images and processes them to look more high-quality than the raw render itself can look. High-quality renders tend to see very quickly diminishing returns on upsampling, increasing ray depth, and more.</p>
+    <h3> Deliverables: </h3>
+    <p>For this part of the deliverable, we will have three types of renders:</p>
+    <p style="margin-left: 40px"> -The original render, low quality, of scenes from a ray tracer </p>
+    <p style="margin-left: 40px"> -The polished render, high quality, of scenes post-processed by the neural network </p>
+    <p style="margin-left: 40px"> -The polished render, high quality, of scenes from a ray tracer</p>
+    <h3> Comparisons: </h3>
+    <p style="margin-left: 40px"> -Total render + post-processing time (s)</p>
+    <p style="margin-left: 40px"> -Adversarial loss</p>
+    <p style="margin-left: 40px"> -SIFT feature loss</p>
+    <p style="margin-left: 40px"> -PCA-based comparison</p>
+    <p style="margin-left: 40px"> -MSE</p> 
+    <h3> Questions: </h3>
+    <p style="margin-left: 40px"> -Is there a more efficient way to achieve high-quality renders?</p>
+    <p style="margin-left: 40px"> -Is it possible to “extract” information and upscale images given knowledge of the domain in which we are rendering?</p>
+    <p style="margin-left: 40px"> -Can our post-processed renders maintain high-quality features?</p>
+    <h3> Ambitious Goal: Altering surface brdfs in Images </h3>
+    <p> This project will involve using a Generative Adversarial Network to take in an image of an object and spit out an image of the same object but with a different specified BRDF. Having this work for scenes with detailed backgrounds is very ambitious so likely our first tests will be on very simple scenes with just a simple geometric object, a light source and completely black space in the background. </p> 
+    <div align="center">
+    <table style="width=100%">
+      <tr>
+        <td align="middle">
+        <img src="Images/GAN.png" width="580px" />
+      </tr>
+    </table>
+    </div>
+    <h3> GAN Overview: </h3>
+    <p> The GAN consists of a 2 neural network system consisting of the generator and the discriminator. The generator receives and input image and produces an output. After accumulating enough of these outputs, we bundle them into a batch. We have ground truth images for each output in this batch. We train hand our discriminator the ground truth batch and the output batch and it tries to predict whether each image is real or fake.
+Through training, the generator will learn to produce images that are more similar to the ground truth and the discriminator will learn to better discern between the two. If training is successful, the generator’s output will match the ground truth, leaving the discriminator guessing randomly.
+    </p>
+    <h3> Gathering Data: </h3>
+    <p> While recent work [cyclegan] as allowed style/texture transfer without paired data, in our problem, we can produce synthetic paired data, so a conditional GAN trained on paired examples should suffice. To collect data, we will need to obtain an efficient ray tracer and a plethora of scenes. From each scene, we will take 2m images from m different camera viewing angles. For each vantage point, one image will have an object of BRDF_A and the other image will have the object with BRDF_B. This is a way of producing “Paired” data for the generator and discriminator inputs. This will likely be an engineering challenge.</p>
+    <h3> Deliverables: </h3> 
+    <p style="margin-left: 40px"> -Cool before/after images generated by our GAN.</p>
+    <h3> Measurables: </h3>
+    <p style="margin-left: 40px"> -Adversarial Training/Testing Loss (Is our discriminator fooled by our results?)</p>
+    <p style="margin-left: 40px"> -Eye Test (Does it look legit?)</p>
+    <h3> Questions we want to answer: </h3>
+    <p style="margin-left: 40px"> -Can current Neural Network architectures learn this type of transfer? </p>
+    <p style="margin-left: 40px"> -If not, how can we alter the Networks to produce something reasonable/interesting?</p>
+    <p style="margin-left: 40px"> -Can the results be applied to domains like 3D reconstruction via Stereo?</p>
+
+<h2> Schedule </h2>
+<h3> Week 1: <h3>
+  <p> Set up and understand the pix2pix cGAN infrastructure using the existing github repo. Find efficient ray tracer. </p>
+<h3> Week 2: <h3>
+  <p> Set up infrastructure for collecting synthetic training data. </p>
+<h3> Week 3: <h3>
+  <p> Test/Debug GAN with our data on simple scenes.</p>
+<h3> Week 4: <h3>
+  <p> Finish debugging GAN and/or try on more complex scenes.</p>
+
+<h2> Resources </h2>
+  <a href="https://hardikbansal.github.io/CycleGANBlog/">CycleGan</a>
+  <br>
+  <a href="https://arxiv.org/abs/1703.10593"> Pix2Pix Paper </a>
+  <br>
+  <a href="https://github.com/phillipi/pix2pix"> Pix2Pix Github </a>
+  <br>
+  <a href="http://www.k4ai.com/imageops/"> Image Segmentation via Pix2Pix </a>
+  <br>
+  <a href="https://github.com/nagadomi/waifu2x"> Image SuperResolution Github </a>
+</div>
 
 </body>
 </html>
